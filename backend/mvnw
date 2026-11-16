@@ -1,0 +1,49 @@
+#!/bin/sh
+# ----------------------------------------------------------------------------
+# Maven Wrapper Script for Hostel CMS
+# ----------------------------------------------------------------------------
+
+# Resolve JAVA_HOME if not set
+if [ -z "$JAVA_HOME" ]; then
+  if [ -x "/usr/libexec/java_home" ]; then
+    export JAVA_HOME="$(/usr/libexec/java_home 2>/dev/null)"
+  elif [ -d "/Library/Java/JavaVirtualMachines/openjdk-17.jdk/Contents/Home" ]; then
+    export JAVA_HOME="/Library/Java/JavaVirtualMachines/openjdk-17.jdk/Contents/Home"
+  fi
+fi
+
+if [ -n "$JAVA_HOME" ] && [ -x "$JAVA_HOME/bin/java" ]; then
+  JAVACMD="$JAVA_HOME/bin/java"
+else
+  JAVACMD="$(which java 2>/dev/null)"
+fi
+
+if [ ! -x "$JAVACMD" ]; then
+  echo "Error: JAVA_HOME is not set and no 'java' command could be found in your PATH." >&2
+  exit 1
+fi
+
+BASE_DIR="$(cd "$(dirname "$0")" && pwd)"
+MAVEN_VERSION="3.9.6"
+MAVEN_HOME="$HOME/.m2/wrapper/dists/apache-maven-$MAVEN_VERSION"
+
+if [ ! -d "$MAVEN_HOME" ]; then
+  echo "Installing local Maven $MAVEN_VERSION for first-time run..."
+  mkdir -p "$HOME/.m2/wrapper/dists"
+  ZIP_FILE="/tmp/apache-maven-$MAVEN_VERSION-bin.zip"
+  
+  if [ ! -f "$ZIP_FILE" ]; then
+    curl -fsSL "https://archive.apache.org/dist/maven/maven-3/$MAVEN_VERSION/binaries/apache-maven-$MAVEN_VERSION-bin.zip" -o "$ZIP_FILE"
+  fi
+  
+  unzip -q -o "$ZIP_FILE" -d "$HOME/.m2/wrapper/dists/"
+  rm -f "$ZIP_FILE"
+fi
+
+MVN_CMD="$MAVEN_HOME/bin/mvn"
+if [ ! -x "$MVN_CMD" ]; then
+  echo "Error: Failed to locate $MVN_CMD" >&2
+  exit 1
+fi
+
+exec "$MVN_CMD" "$@"

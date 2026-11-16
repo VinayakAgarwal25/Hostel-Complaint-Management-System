@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Complaint Management System</title>
+  <title>Hostel Complaint Management System - Java & Spring Boot</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -11,28 +11,47 @@
     <div class="brand">
       <span class="brand-mark">CMS</span>
       <div>
-        <h1>Complaint Management</h1>
-        <p>DBMS dashboard</p>
+        <h1>Hostel CMS</h1>
+        <p>Spring Boot + MySQL</p>
       </div>
     </div>
     <nav class="nav-tabs" aria-label="Application sections">
       <button class="nav-tab active" data-view="dashboard">Dashboard</button>
       <button class="nav-tab" data-view="complaints">Complaints</button>
       <button class="nav-tab" data-view="departments">Departments</button>
+      <button class="nav-tab" data-view="staff" id="staff-nav-tab" style="display:none;">Staff & Technicians</button>
       <button class="nav-tab" data-view="new">Register</button>
     </nav>
+    <div class="sidebar-footer" style="margin-top:auto; padding-top:20px; font-size:12px; color:rgba(255,255,255,0.7); border-top:1px solid rgba(255,255,255,0.1);">
+      <p style="margin:0 0 4px 0;"><strong>UCS Java Project</strong></p>
+      <p style="margin:0;">Thapar University</p>
+    </div>
   </aside>
 
   <main class="shell">
     <header class="topbar">
       <div>
-        <p class="eyebrow">Oracle SQL + PL/SQL project</p>
+        <p class="eyebrow">Hostel Maintenance & Complaint System — Java 17 / Spring Boot 3</p>
         <h2 id="page-title">Dashboard</h2>
       </div>
       <div class="top-actions">
+        <div id="backend-status" style="display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:500; padding:6px 14px; border-radius:20px; background:#dcfce7; color:#15803d; border:1px solid #86efac;">
+          <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#22c55e;"></span>
+          <span id="backend-status-text">Connecting...</span>
+        </div>
+        
+        <div class="user-profile-badge" id="user-profile-badge" style="display:flex; align-items:center; gap:10px; padding:4px 12px; background:#fff; border:1px solid var(--line); border-radius:30px; box-shadow:var(--shadow-soft);">
+          <div style="width:30px; height:30px; border-radius:50%; background:var(--accent); color:#fff; display:grid; place-items:center; font-weight:800; font-size:12px;" id="user-avatar">A</div>
+          <div style="line-height:1.2;">
+            <div style="font-weight:800; font-size:12px;" id="current-user-name">Aarav Sharma</div>
+            <div style="font-size:11px; color:var(--muted);"><span class="pill status-resolved" id="current-user-role" style="padding:1px 6px; font-size:10px; min-height:18px;">STUDENT</span> <span id="current-user-extra">(A-101)</span></div>
+          </div>
+          <button id="switch-user-btn" class="ghost-action" style="min-height:26px; padding:0 8px; font-size:11px; margin-left:4px; border-radius:14px;" title="Switch Role">Switch Role</button>
+        </div>
+
         <label class="search">
           <span>Search</span>
-          <input id="search-input" type="search" placeholder="ID, user, department, issue">
+          <input id="search-input" type="search" placeholder="ID, user, room, department, issue">
         </label>
         <button class="primary-action" data-view-target="new">New complaint</button>
       </div>
@@ -51,7 +70,7 @@
         <section class="panel">
           <div class="panel-heading">
             <h3>Priority mix</h3>
-            <span>Sample records</span>
+            <span>Live Database Records</span>
           </div>
           <div class="priority-stack" id="priority-stack"></div>
         </section>
@@ -66,7 +85,7 @@
             <thead>
               <tr>
                 <th>ID</th>
-                <th>Complainant</th>
+                <th>Resident / Room</th>
                 <th>Department</th>
                 <th>Priority</th>
                 <th>Status</th>
@@ -119,7 +138,7 @@
             <thead>
               <tr>
                 <th>ID</th>
-                <th>Complainant</th>
+                <th>Resident / Room</th>
                 <th>Category</th>
                 <th>Department</th>
                 <th>Priority</th>
@@ -137,10 +156,41 @@
     <section class="view" id="departments-view" aria-labelledby="page-title">
       <section class="panel">
         <div class="panel-heading">
-          <h3>Department performance</h3>
-          <span>Grouped from complaint data</span>
+          <h3>Hostel Maintenance Wings Performance</h3>
+          <span>Grouped from live MySQL database</span>
         </div>
         <div class="department-list" id="department-list"></div>
+      </section>
+    </section>
+
+    <!-- WARDEN ONLY: STAFF & TECHNICIANS MANAGEMENT VIEW -->
+    <section class="view" id="staff-view" aria-labelledby="page-title">
+      <section class="panel">
+        <div class="panel-heading">
+          <div>
+            <h3>Maintenance Technicians & Staff Roster</h3>
+            <span style="color:var(--muted); font-size:12px;">Workload metrics, resolution tracking & resident feedback</span>
+          </div>
+          <button class="primary-action" id="open-add-staff-btn" style="min-height:36px; padding:0 14px; font-size:13px;">+ Add New Staff</button>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Technician</th>
+                <th>Wing / Department</th>
+                <th>Contact</th>
+                <th>Assigned</th>
+                <th>Resolved</th>
+                <th>Active / Pending</th>
+                <th>Resident Rating</th>
+              </tr>
+            </thead>
+            <tbody id="staff-rows"></tbody>
+          </table>
+        </div>
       </section>
     </section>
 
@@ -148,24 +198,24 @@
       <section class="form-layout">
         <form class="panel form-panel" id="complaint-form">
           <div class="panel-heading">
-            <h3>Register complaint</h3>
-            <span>Browser demo</span>
+            <h3>Lodge Hostel Complaint</h3>
+            <span>Persisted directly to MySQL</span>
           </div>
           <div class="form-grid">
             <label>
-              Complainant
+              Resident (Student)
               <select id="user-field" required></select>
             </label>
             <label>
-              Category
+              Issue Category
               <select id="category-field" required></select>
             </label>
             <label>
-              Department
+              Target Department
               <select id="department-field" required></select>
             </label>
             <label>
-              Priority
+              Priority Level
               <select id="priority-field" required>
                 <option>Low</option>
                 <option selected>Medium</option>
@@ -174,34 +224,133 @@
             </label>
           </div>
           <label>
-            Description
-            <textarea id="description-field" rows="5" maxlength="500" required placeholder="Describe the issue clearly"></textarea>
+            Description of Issue
+            <textarea id="description-field" rows="5" maxlength="500" required placeholder="Describe the hostel issue clearly (e.g., Geyser not heating, Wi-Fi speed low in room B-201, Tap leakage)"></textarea>
           </label>
           <div class="form-actions">
-            <button class="primary-action" type="submit">Register complaint</button>
-            <button class="ghost-action" type="reset">Clear</button>
+            <button class="primary-action" type="submit">Submit Complaint</button>
+            <button class="ghost-action" type="reset">Clear Form</button>
           </div>
         </form>
 
         <aside class="panel note-panel">
-          <h3>Database mapping</h3>
-          <p>The form mirrors the complaint table and the register_complaint PL/SQL procedure: user, category, department, description, priority, default status, and registration date.</p>
+          <h3>Architecture & Workflow</h3>
+          <p>Every submitted complaint triggers an atomic JDBC transaction via <code>ComplaintDAOImpl</code>:</p>
           <dl>
-            <div><dt>Status</dt><dd>Defaults to Pending</dd></div>
-            <div><dt>ID</dt><dd>Uses the next available complaint number</dd></div>
-            <div><dt>History</dt><dd>Adds an initial Pending event</dd></div>
+            <div><dt>1. Auto ID</dt><dd>Generated via DB primary key</dd></div>
+            <div><dt>2. Initial Status</dt><dd>Defaults to 'Pending'</dd></div>
+            <div><dt>3. Audit Log</dt><dd>Logged into <code>complaint_status_history</code></dd></div>
+            <div><dt>4. Security</dt><dd>Protected against SQL injection via <code>PreparedStatement</code></dd></div>
           </dl>
         </aside>
       </section>
     </section>
   </main>
 
+  <!-- COMPLAINT DETAIL DIALOG -->
   <dialog id="detail-dialog">
     <div class="dialog-head">
       <h3 id="detail-title">Complaint details</h3>
       <button class="icon-button" id="close-dialog" aria-label="Close dialog">x</button>
     </div>
     <div id="detail-body"></div>
+  </dialog>
+
+  <!-- ROLE AUTHENTICATION & LOGIN DIALOG -->
+  <dialog id="login-dialog">
+    <div class="dialog-head">
+      <h3>🔐 Role Authentication & Switcher</h3>
+      <button class="icon-button" id="close-login-dialog" aria-label="Close dialog">x</button>
+    </div>
+    <div style="padding:20px; display:grid; gap:16px;">
+      <p style="margin:0; color:var(--muted); font-size:13.5px; line-height:1.5;">
+        Select an actor role below to demo role-specific permissions and workflows:
+      </p>
+
+      <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:12px;">
+        <div class="panel" onclick="loginAsRole('student')" style="padding:14px; text-align:center; cursor:pointer; border:2px solid var(--line); border-radius:10px; transition:transform 0.15s, border-color 0.15s;">
+          <div style="font-size:32px; margin-bottom:6px;">👨‍🎓</div>
+          <strong style="display:block; font-size:14px;">Resident Student</strong>
+          <span style="font-size:12px; color:var(--muted); display:block; margin-top:2px;">Aarav Sharma</span>
+          <span class="pill status-pending" style="font-size:10px; min-height:18px; margin-top:8px;">Room A-101</span>
+        </div>
+
+        <div class="panel" onclick="loginAsRole('warden')" style="padding:14px; text-align:center; cursor:pointer; border:2px solid var(--line); border-radius:10px; transition:transform 0.15s, border-color 0.15s;">
+          <div style="font-size:32px; margin-bottom:6px;">🛡️</div>
+          <strong style="display:block; font-size:14px;">Hostel Warden</strong>
+          <span style="font-size:12px; color:var(--muted); display:block; margin-top:2px;">Admin Authority</span>
+          <span class="pill priority-high" style="font-size:10px; min-height:18px; margin-top:8px;">Full Access</span>
+        </div>
+
+        <div class="panel" onclick="loginAsRole('staff')" style="padding:14px; text-align:center; cursor:pointer; border:2px solid var(--line); border-radius:10px; transition:transform 0.15s, border-color 0.15s;">
+          <div style="font-size:32px; margin-bottom:6px;">🔧</div>
+          <strong style="display:block; font-size:14px;">Technician / Staff</strong>
+          <span style="font-size:12px; color:var(--muted); display:block; margin-top:2px;">Kunal Bedi</span>
+          <span class="pill status-in-progress" style="font-size:10px; min-height:18px; margin-top:8px;">IT & Wi-Fi Wing</span>
+        </div>
+      </div>
+
+      <div style="border-top:1px solid var(--line); padding-top:14px; display:grid; gap:8px;">
+        <label style="font-size:12px;">Or log in with registered Email:
+          <div style="display:flex; gap:8px; margin-top:6px;">
+            <input type="email" id="custom-email-input" placeholder="e.g. ananya.iyer@example.com" style="flex:1;">
+            <button class="primary-action" onclick="submitCustomLogin()">Log In</button>
+          </div>
+        </label>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- FEEDBACK SUBMISSION DIALOG -->
+  <dialog id="feedback-dialog">
+    <div class="dialog-head">
+      <h3>⭐ Submit Resolution Feedback</h3>
+      <button class="icon-button" id="close-feedback-dialog" aria-label="Close dialog">x</button>
+    </div>
+    <form id="feedback-form" style="padding:20px; display:grid; gap:14px;">
+      <input type="hidden" id="feedback-complaint-id">
+      <div>
+        <label>Rating (1 to 5 Stars):</label>
+        <select id="feedback-rating-select" style="margin-top:6px;">
+          <option value="5">⭐⭐⭐⭐⭐ 5 - Excellent (Resolved Promptly)</option>
+          <option value="4" selected>⭐⭐⭐⭐ 4 - Good (Issue Fixed)</option>
+          <option value="3">⭐⭐⭐ 3 - Average (Satisfactory)</option>
+          <option value="2">⭐⭐ 2 - Poor (Delayed)</option>
+          <option value="1">⭐ 1 - Very Bad (Unresolved)</option>
+        </select>
+      </div>
+      <div>
+        <label>Resident Comments:</label>
+        <textarea id="feedback-comments-text" rows="3" placeholder="Share your experience with the maintenance work..." style="margin-top:6px;"></textarea>
+      </div>
+      <div class="form-actions">
+        <button class="primary-action" type="submit">Submit Rating</button>
+      </div>
+    </form>
+  <!-- ADD NEW STAFF DIALOG (WARDEN ONLY) -->
+  <dialog id="add-staff-dialog">
+    <div class="dialog-head">
+      <h3>👷 Add New Technician / Staff Member</h3>
+      <button class="icon-button" id="close-add-staff-dialog" aria-label="Close dialog">x</button>
+    </div>
+    <form id="add-staff-form" style="padding:20px; display:grid; gap:14px;">
+      <div>
+        <label>Full Name:</label>
+        <input type="text" id="new-staff-name" required placeholder="e.g. Rajesh Sharma" style="margin-top:6px;">
+      </div>
+      <div>
+        <label>Maintenance Wing / Department:</label>
+        <select id="new-staff-department" required style="margin-top:6px;"></select>
+      </div>
+      <div>
+        <label>Phone Number:</label>
+        <input type="tel" id="new-staff-phone" required placeholder="e.g. 9876543299" style="margin-top:6px;">
+      </div>
+      <div class="form-actions" style="margin-top:6px;">
+        <button class="primary-action" type="submit">Save Staff Member</button>
+        <button class="ghost-action" type="button" onclick="document.getElementById('add-staff-dialog').close()">Cancel</button>
+      </div>
+    </form>
   </dialog>
 
   <script src="app.js"></script>

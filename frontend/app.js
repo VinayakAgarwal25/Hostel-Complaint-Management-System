@@ -1,366 +1,945 @@
-const users = [
-  { id: 1, name: "Aarav Sharma", email: "aarav.sharma@example.com" },
-  { id: 2, name: "Ananya Iyer", email: "ananya.iyer@example.com" },
-  { id: 3, name: "Rohan Verma", email: "rohan.verma@example.com" },
-  { id: 4, name: "Priya Nair", email: "priya.nair@example.com" },
-  { id: 5, name: "Karan Mehta", email: "karan.mehta@example.com" },
-  { id: 6, name: "Sneha Kulkarni", email: "sneha.kulkarni@example.com" },
-  { id: 7, name: "Aditya Rao", email: "aditya.rao@example.com" },
-  { id: 8, name: "Meera Menon", email: "meera.menon@example.com" },
-  { id: 9, name: "Vikram Singh", email: "vikram.singh@example.com" },
-  { id: 10, name: "Isha Gupta", email: "isha.gupta@example.com" },
-  { id: 11, name: "Arjun Reddy", email: "arjun.reddy@example.com" },
-  { id: 12, name: "Neha Joshi", email: "neha.joshi@example.com" },
-  { id: 13, name: "Siddharth Jain", email: "siddharth.jain@example.com" },
-  { id: 14, name: "Pooja Patel", email: "pooja.patel@example.com" },
-  { id: 15, name: "Rahul Das", email: "rahul.das@example.com" },
-  { id: 16, name: "Kavya Pillai", email: "kavya.pillai@example.com" },
-  { id: 17, name: "Nikhil Bansal", email: "nikhil.bansal@example.com" },
-  { id: 18, name: "Aditi Chatterjee", email: "aditi.chatterjee@example.com" },
-  { id: 19, name: "Manish Malhotra", email: "manish.malhotra@example.com" },
-  { id: 20, name: "Divya Krishnan", email: "divya.krishnan@example.com" },
-  { id: 21, name: "Harsh Agarwal", email: "harsh.agarwal@example.com" },
-  { id: 22, name: "Tanvi Saxena", email: "tanvi.saxena@example.com" },
-  { id: 23, name: "Yash Kapoor", email: "yash.kapoor@example.com" },
-  { id: 24, name: "Ritika Sinha", email: "ritika.sinha@example.com" },
-  { id: 25, name: "Mohit Khanna", email: "mohit.khanna@example.com" },
-  { id: 26, name: "Shreya Ghosh", email: "shreya.ghosh@example.com" },
-  { id: 27, name: "Saurabh Mishra", email: "saurabh.mishra@example.com" },
-  { id: 28, name: "Naina Bhatia", email: "naina.bhatia@example.com" },
-  { id: 29, name: "Devansh Shah", email: "devansh.shah@example.com" },
-  { id: 30, name: "Simran Kaur", email: "simran.kaur@example.com" }
-];
+// API Base URL (relative path when served by Spring Boot, or absolute localhost if opened standalone)
+const API_BASE = window.location.origin.includes(":8080") ? "/api" : "http://localhost:8080/api";
 
-const departments = [
-  { id: 1, name: "Maintenance" },
-  { id: 2, name: "IT" },
-  { id: 3, name: "Housekeeping" },
-  { id: 4, name: "Security" },
-  { id: 5, name: "Mess/Cafeteria" },
-  { id: 6, name: "Administration" },
-  { id: 7, name: "Electrical" },
-  { id: 8, name: "Plumbing" }
-];
+let isBackendLive = false;
+let users = [];
+let departments = [];
+let categories = [];
+let complaints = [];
+let staffList = [];
+let staffPerformance = [];
 
-const categories = [
-  { id: 1, name: "Noise" },
-  { id: 2, name: "Water Leakage" },
-  { id: 3, name: "Power Outage" },
-  { id: 4, name: "Internet Issue" },
-  { id: 5, name: "Cleanliness" },
-  { id: 6, name: "Pest Control" },
-  { id: 7, name: "Furniture Damage" },
-  { id: 8, name: "Food Quality" },
-  { id: 9, name: "Security Breach" },
-  { id: 10, name: "Other" }
-];
-
-const staffByDepartment = {
-  1: "Ramesh Yadav",
-  2: "Kunal Bedi",
-  3: "Lata More",
-  4: "Prakash Rawat",
-  5: "Joseph Dsouza",
-  6: "Mahesh Pillai",
-  7: "Vivek Pandey",
-  8: "Bharat Lal"
+// Current authenticated user session (defaults to Student Aarav Sharma)
+let currentUser = {
+  userId: 1,
+  name: "Aarav Sharma",
+  email: "aarav.sharma@example.com",
+  roomNumber: "A-101",
+  hostelBlock: "Block A",
+  role: "STUDENT"
 };
 
-let complaints = [
-  { id: 1, userId: 1, categoryId: 4, departmentId: 2, description: "Wi-Fi disconnecting repeatedly in hostel block A.", status: "Resolved", priority: "High", registered: "2024-01-05", resolved: "2024-01-08" },
-  { id: 2, userId: 2, categoryId: 2, departmentId: 8, description: "Water leakage near washroom pipeline on second floor.", status: "Resolved", priority: "Medium", registered: "2024-01-18", resolved: "2024-01-24" },
-  { id: 3, userId: 3, categoryId: 3, departmentId: 7, description: "Power outage in computer lab during evening hours.", status: "In Progress", priority: "High", registered: "2024-02-02", resolved: null },
-  { id: 4, userId: 4, categoryId: 5, departmentId: 3, description: "Corridor cleaning not completed for three days.", status: "Resolved", priority: "Low", registered: "2024-02-12", resolved: "2024-02-13" },
-  { id: 5, userId: 5, categoryId: 8, departmentId: 5, description: "Dinner quality was poor and food was served cold.", status: "Pending", priority: "Medium", registered: "2024-02-25", resolved: null },
-  { id: 6, userId: 6, categoryId: 9, departmentId: 4, description: "Unknown person entered hostel without ID check.", status: "In Progress", priority: "High", registered: "2024-03-03", resolved: null },
-  { id: 7, userId: 7, categoryId: 7, departmentId: 1, description: "Study table leg broken in room B-214.", status: "Resolved", priority: "Low", registered: "2024-03-15", resolved: "2024-03-18" },
-  { id: 8, userId: 8, categoryId: 1, departmentId: 6, description: "Loud construction noise during examination week.", status: "Resolved", priority: "Medium", registered: "2024-03-28", resolved: "2024-04-03" },
-  { id: 9, userId: 9, categoryId: 6, departmentId: 3, description: "Cockroaches found in common pantry area.", status: "Pending", priority: "High", registered: "2024-04-07", resolved: null },
-  { id: 10, userId: 10, categoryId: 10, departmentId: 6, description: "Request for updated notice board information.", status: "Resolved", priority: "Low", registered: "2024-04-20", resolved: "2024-04-22" },
-  { id: 11, userId: 11, categoryId: 4, departmentId: 2, description: "LAN port not working in room C-109.", status: "Resolved", priority: "Medium", registered: "2024-05-04", resolved: "2024-05-10" },
-  { id: 12, userId: 12, categoryId: 3, departmentId: 7, description: "Frequent voltage fluctuation in seminar hall.", status: "Resolved", priority: "High", registered: "2024-05-17", resolved: "2024-06-01" },
-  { id: 13, userId: 13, categoryId: 2, departmentId: 8, description: "Tap continuously running in ground floor washroom.", status: "In Progress", priority: "Medium", registered: "2024-06-02", resolved: null },
-  { id: 14, userId: 14, categoryId: 5, departmentId: 3, description: "Overflowing dustbins near hostel entrance.", status: "Resolved", priority: "Low", registered: "2024-06-16", resolved: "2024-06-17" },
-  { id: 15, userId: 15, categoryId: 8, departmentId: 5, description: "Breakfast items not available by serving time.", status: "Pending", priority: "Medium", registered: "2024-06-30", resolved: null },
-  { id: 16, userId: 16, categoryId: 9, departmentId: 4, description: "CCTV camera near gate three is not recording.", status: "Resolved", priority: "High", registered: "2024-07-08", resolved: "2024-07-20" },
-  { id: 17, userId: 17, categoryId: 7, departmentId: 1, description: "Chair in reading room has damaged back support.", status: "Resolved", priority: "Low", registered: "2024-07-19", resolved: "2024-07-21" },
-  { id: 18, userId: 18, categoryId: 4, departmentId: 2, description: "Email portal password reset link not received.", status: "In Progress", priority: "Medium", registered: "2024-08-01", resolved: null },
-  { id: 19, userId: 19, categoryId: 3, departmentId: 7, description: "Tube light flickering in room A-310.", status: "Pending", priority: "Low", registered: "2024-08-14", resolved: null },
-  { id: 20, userId: 20, categoryId: 2, departmentId: 8, description: "Drain blocked near hostel courtyard.", status: "Resolved", priority: "High", registered: "2024-08-29", resolved: "2024-09-04" },
-  { id: 21, userId: 21, categoryId: 1, departmentId: 6, description: "Auditorium event noise continued beyond permitted time.", status: "Resolved", priority: "Medium", registered: "2024-09-10", resolved: "2024-09-14" },
-  { id: 22, userId: 22, categoryId: 6, departmentId: 3, description: "Mosquito breeding near stagnant water area.", status: "In Progress", priority: "High", registered: "2024-09-21", resolved: null },
-  { id: 23, userId: 23, categoryId: 10, departmentId: 1, description: "Window latch requires repair in lab corridor.", status: "Resolved", priority: "Low", registered: "2024-10-05", resolved: "2024-10-09" },
-  { id: 24, userId: 24, categoryId: 4, departmentId: 2, description: "Online attendance portal inaccessible from campus network.", status: "Pending", priority: "High", registered: "2024-10-18", resolved: null },
-  { id: 25, userId: 25, categoryId: 8, departmentId: 5, description: "Mess menu not followed for two consecutive days.", status: "Resolved", priority: "Medium", registered: "2024-11-01", resolved: "2024-11-06" },
-  { id: 26, userId: 26, categoryId: 5, departmentId: 3, description: "Washroom mirror and floor not cleaned properly.", status: "Resolved", priority: "Low", registered: "2024-11-12", resolved: "2024-11-13" },
-  { id: 27, userId: 27, categoryId: 3, departmentId: 7, description: "Main corridor lights off after 8 PM.", status: "In Progress", priority: "High", registered: "2024-11-24", resolved: null },
-  { id: 28, userId: 28, categoryId: 9, departmentId: 4, description: "Visitor register was unattended at front gate.", status: "Pending", priority: "High", registered: "2024-12-04", resolved: null },
-  { id: 29, userId: 29, categoryId: 2, departmentId: 8, description: "Low water pressure in third floor washroom.", status: "Resolved", priority: "Medium", registered: "2024-12-15", resolved: "2024-12-28" },
-  { id: 30, userId: 30, categoryId: 7, departmentId: 1, description: "Cupboard handle broken in room D-102.", status: "Resolved", priority: "Low", registered: "2024-12-26", resolved: "2024-12-30" },
-  { id: 31, userId: 1, categoryId: 4, departmentId: 2, description: "Campus LMS timing out during assignment upload.", status: "Pending", priority: "High", registered: "2025-01-07", resolved: null },
-  { id: 32, userId: 2, categoryId: 8, departmentId: 5, description: "Lunch rice was undercooked on multiple days.", status: "Resolved", priority: "Medium", registered: "2025-01-16", resolved: "2025-01-22" },
-  { id: 33, userId: 3, categoryId: 5, departmentId: 3, description: "Staircase area has not been swept after renovation work.", status: "In Progress", priority: "Low", registered: "2025-01-30", resolved: null },
-  { id: 34, userId: 4, categoryId: 3, departmentId: 7, description: "Backup generator did not start during power cut.", status: "Resolved", priority: "High", registered: "2025-02-11", resolved: "2025-02-25" },
-  { id: 35, userId: 5, categoryId: 2, departmentId: 8, description: "Seepage visible on ceiling near room B-305.", status: "Pending", priority: "High", registered: "2025-02-20", resolved: null },
-  { id: 36, userId: 6, categoryId: 9, departmentId: 4, description: "Hostel gate entry scanner not working.", status: "Resolved", priority: "High", registered: "2025-03-03", resolved: "2025-03-14" },
-  { id: 37, userId: 7, categoryId: 1, departmentId: 6, description: "Late night loudspeaker use near admin lawn.", status: "Resolved", priority: "Medium", registered: "2025-03-12", resolved: "2025-03-15" },
-  { id: 38, userId: 8, categoryId: 6, departmentId: 3, description: "Termite marks found near wooden cupboard.", status: "In Progress", priority: "Medium", registered: "2025-03-24", resolved: null },
-  { id: 39, userId: 9, categoryId: 4, departmentId: 2, description: "Computer lab printer not reachable over network.", status: "Resolved", priority: "Low", registered: "2025-04-02", resolved: "2025-04-05" },
-  { id: 40, userId: 10, categoryId: 3, departmentId: 7, description: "Electrical socket sparking in room C-204.", status: "Pending", priority: "High", registered: "2025-04-12", resolved: null },
-  { id: 41, userId: 11, categoryId: 10, departmentId: 6, description: "Duplicate fee receipt required from office.", status: "Resolved", priority: "Low", registered: "2025-04-19", resolved: "2025-04-21" },
-  { id: 42, userId: 12, categoryId: 2, departmentId: 8, description: "Water cooler outlet leaking continuously.", status: "Resolved", priority: "Medium", registered: "2025-04-28", resolved: "2025-05-03" },
-  { id: 43, userId: 13, categoryId: 8, departmentId: 5, description: "Tea served was stale in evening snack counter.", status: "In Progress", priority: "Low", registered: "2025-05-05", resolved: null },
-  { id: 44, userId: 14, categoryId: 7, departmentId: 1, description: "Bench in classroom F-12 is unstable.", status: "Pending", priority: "Medium", registered: "2025-05-14", resolved: null },
-  { id: 45, userId: 15, categoryId: 5, departmentId: 3, description: "Garbage collection skipped behind hostel block.", status: "Resolved", priority: "Medium", registered: "2025-05-21", resolved: "2025-05-24" },
-  { id: 46, userId: 16, categoryId: 4, departmentId: 2, description: "Biometric attendance device offline.", status: "Resolved", priority: "High", registered: "2025-05-27", resolved: "2025-06-05" },
-  { id: 47, userId: 17, categoryId: 3, departmentId: 7, description: "Ceiling fan stopped working in room B-101.", status: "In Progress", priority: "Medium", registered: "2025-06-04", resolved: null },
-  { id: 48, userId: 18, categoryId: 9, departmentId: 4, description: "Emergency exit was blocked by parked vehicles.", status: "Pending", priority: "High", registered: "2025-06-11", resolved: null },
-  { id: 49, userId: 19, categoryId: 6, departmentId: 3, description: "Ant infestation reported in mess storage area.", status: "Resolved", priority: "High", registered: "2025-06-20", resolved: "2025-06-29" },
-  { id: 50, userId: 20, categoryId: 2, departmentId: 8, description: "Bathroom flush tank not filling correctly.", status: "Pending", priority: "Medium", registered: "2025-06-30", resolved: null }
+// Fallback seed data in case backend is offline
+const fallbackUsers = [
+  { userId: 1, name: "Aarav Sharma", email: "aarav.sharma@example.com", roomNumber: "A-101", hostelBlock: "Block A", role: "STUDENT" },
+  { userId: 2, name: "Ananya Iyer", email: "ananya.iyer@example.com", roomNumber: "A-102", hostelBlock: "Block A", role: "STUDENT" },
+  { userId: 3, name: "Rohan Verma", email: "rohan.verma@example.com", roomNumber: "A-201", hostelBlock: "Block A", role: "STUDENT" },
+  { userId: 4, name: "Priya Nair", email: "priya.nair@example.com", roomNumber: "B-105", hostelBlock: "Block B", role: "STUDENT" },
+  { userId: 5, name: "Karan Mehta", email: "karan.mehta@example.com", roomNumber: "B-210", hostelBlock: "Block B", role: "STUDENT" },
+  { userId: 16, name: "Hostel Warden (Admin)", email: "warden@hostel.edu", roomNumber: "Admin-01", hostelBlock: "Admin Block", role: "WARDEN" }
 ];
 
-const state = { view: "dashboard", search: "", status: "All", priority: "All", department: "All" };
+const fallbackDepartments = [
+  { departmentId: 1, departmentName: "Maintenance" },
+  { departmentId: 2, departmentName: "IT & Wi-Fi" },
+  { departmentId: 3, departmentName: "Housekeeping" },
+  { departmentId: 4, departmentName: "Security" },
+  { departmentId: 5, departmentName: "Mess & Cafeteria" },
+  { departmentId: 6, departmentName: "Hostel Administration" },
+  { departmentId: 7, departmentName: "Electrical" },
+  { departmentId: 8, departmentName: "Plumbing" }
+];
 
-const byId = (items, id) => items.find((item) => item.id === id);
-const formatDate = (value) => value ? new Date(`${value}T00:00:00`).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) : "Not resolved";
-const statusClass = (status) => `status-${status.toLowerCase().replaceAll(" ", "-")}`;
-const priorityClass = (priority) => `priority-${priority.toLowerCase()}`;
+const fallbackCategories = [
+  { categoryId: 1, categoryName: "Noise & Disturbance" },
+  { categoryId: 2, categoryName: "Water Leakage & Supply" },
+  { categoryId: 3, categoryName: "Power Outage & Geyser" },
+  { categoryId: 4, categoryName: "Wi-Fi & LAN Network" },
+  { categoryId: 5, categoryName: "Cleanliness & Garbage" },
+  { categoryId: 6, categoryName: "Pest Control & Insects" },
+  { categoryId: 7, categoryName: "Furniture Damage & Carpentry" },
+  { categoryId: 8, categoryName: "Mess Food Quality" }
+];
 
-function complaintViewModel(complaint) {
-  const user = byId(users, complaint.userId);
-  const department = byId(departments, complaint.departmentId);
-  const category = byId(categories, complaint.categoryId);
-  return {
-    ...complaint,
-    userName: user?.name || "Unknown user",
-    userEmail: user?.email || "No email available",
-    departmentName: department?.name || "Unknown department",
-    categoryName: category?.name || "Other",
-    staffName: staffByDepartment[complaint.departmentId] || "Unassigned"
-  };
+const views = {
+  dashboard: document.getElementById("dashboard-view"),
+  complaints: document.getElementById("complaints-view"),
+  departments: document.getElementById("departments-view"),
+  staff: document.getElementById("staff-view"),
+  new: document.getElementById("new-view")
+};
+
+const pageTitle = document.getElementById("page-title");
+const searchInput = document.getElementById("search-input");
+const statusFilter = document.getElementById("status-filter");
+const priorityFilter = document.getElementById("priority-filter");
+const departmentFilter = document.getElementById("department-filter");
+const userField = document.getElementById("user-field");
+const categoryField = document.getElementById("category-field");
+const departmentField = document.getElementById("department-field");
+const complaintForm = document.getElementById("complaint-form");
+const detailDialog = document.getElementById("detail-dialog");
+const closeDialog = document.getElementById("close-dialog");
+const detailBody = document.getElementById("detail-body");
+const backendStatusText = document.getElementById("backend-status-text");
+const backendStatusBadge = document.getElementById("backend-status");
+
+// Login Elements
+const loginDialog = document.getElementById("login-dialog");
+const closeLoginDialog = document.getElementById("close-login-dialog");
+const switchUserBtn = document.getElementById("switch-user-btn");
+const userAvatar = document.getElementById("user-avatar");
+const currentUserName = document.getElementById("current-user-name");
+const currentUserRole = document.getElementById("current-user-role");
+const currentUserExtra = document.getElementById("current-user-extra");
+const staffNavTab = document.getElementById("staff-nav-tab");
+
+// Feedback Elements
+const feedbackDialog = document.getElementById("feedback-dialog");
+const closeFeedbackDialog = document.getElementById("close-feedback-dialog");
+const feedbackForm = document.getElementById("feedback-form");
+const feedbackComplaintId = document.getElementById("feedback-complaint-id");
+const feedbackRatingSelect = document.getElementById("feedback-rating-select");
+const feedbackCommentsText = document.getElementById("feedback-comments-text");
+
+// Staff Management Elements
+const openAddStaffBtn = document.getElementById("open-add-staff-btn");
+const addStaffDialog = document.getElementById("add-staff-dialog");
+const closeAddStaffDialog = document.getElementById("close-add-staff-dialog");
+const addStaffForm = document.getElementById("add-staff-form");
+const newStaffName = document.getElementById("new-staff-name");
+const newStaffDepartment = document.getElementById("new-staff-department");
+const newStaffPhone = document.getElementById("new-staff-phone");
+const staffRows = document.getElementById("staff-rows");
+
+// Update status badge UI
+function updateBackendStatus(live) {
+  isBackendLive = live;
+  if (!backendStatusBadge || !backendStatusText) return;
+  if (live) {
+    backendStatusBadge.style.background = "#dcfce7";
+    backendStatusBadge.style.color = "#15803d";
+    backendStatusBadge.style.borderColor = "#86efac";
+    backendStatusBadge.firstElementChild.style.background = "#22c55e";
+    backendStatusText.textContent = "Spring Boot + DB Connected";
+  } else {
+    backendStatusBadge.style.background = "#fef3c7";
+    backendStatusBadge.style.color = "#b45309";
+    backendStatusBadge.style.borderColor = "#fde68a";
+    backendStatusBadge.firstElementChild.style.background = "#f59e0b";
+    backendStatusText.textContent = "Offline Preview Mode";
+  }
 }
 
-function filteredComplaints() {
-  const term = state.search.trim().toLowerCase();
-  return complaints
-    .map(complaintViewModel)
-    .filter((item) => state.status === "All" || item.status === state.status)
-    .filter((item) => state.priority === "All" || item.priority === state.priority)
-    .filter((item) => state.department === "All" || item.departmentName === state.department)
-    .filter((item) => {
-      if (!term) return true;
-      return [item.id, item.userName, item.departmentName, item.categoryName, item.description, item.status, item.priority].join(" ").toLowerCase().includes(term);
-    })
-    .sort((a, b) => new Date(b.registered) - new Date(a.registered));
-}
-
-function countBy(items, key) {
-  return items.reduce((counts, item) => {
-    counts[item[key]] = (counts[item[key]] || 0) + 1;
-    return counts;
-  }, {});
-}
-
-function renderMetrics() {
-  const resolved = complaints.filter((item) => item.status === "Resolved").length;
-  const high = complaints.filter((item) => item.priority === "High" && item.status !== "Resolved").length;
-  const open = complaints.length - resolved;
-  const resolutionRate = Math.round((resolved / complaints.length) * 100);
-  const metrics = [
-    ["Total complaints", complaints.length, "Records from SQL seed"],
-    ["Open complaints", open, "Pending and in progress"],
-    ["High priority open", high, "Needs quicker attention"],
-    ["Resolution rate", `${resolutionRate}%`, "Resolved out of total"]
-  ];
-
-  document.querySelector("#metric-grid").innerHTML = metrics.map(([label, value, hint]) => `
-    <article class="metric">
-      <span>${label}</span>
-      <strong>${value}</strong>
-      <span>${hint}</span>
-    </article>
-  `).join("");
-}
-
-function renderStatusBars() {
-  const counts = countBy(complaints, "status");
-  document.querySelector("#status-total").textContent = `${complaints.length} complaints`;
-  document.querySelector("#status-bars").innerHTML = ["Pending", "In Progress", "Resolved"].map((status) => {
-    const count = counts[status] || 0;
-    const width = Math.round((count / complaints.length) * 100);
-    return `
-      <div class="bar-row">
-        <strong>${status}</strong>
-        <div class="bar-track"><div class="bar-fill ${statusClass(status).replace("status-", "")}" style="width:${width}%"></div></div>
-        <span>${count}</span>
-      </div>
-    `;
-  }).join("");
-}
-
-function renderPriorityStack() {
-  const counts = countBy(complaints, "priority");
-  document.querySelector("#priority-stack").innerHTML = ["High", "Medium", "Low"].map((priority) => {
-    const count = counts[priority] || 0;
-    const width = Math.max(12, Math.round((count / complaints.length) * 100));
-    return `<div class="priority-segment ${priorityClass(priority)}" style="width:${width}%">${priority}<br>${count} (${width}%)</div>`;
-  }).join("");
-}
-
-function rowTemplate(item, compact = false) {
-  if (compact) {
-    return `
-      <tr>
-        <td>#${item.id}</td>
-        <td>${item.userName}</td>
-        <td>${item.departmentName}</td>
-        <td><span class="pill ${priorityClass(item.priority)}">${item.priority}</span></td>
-        <td><span class="pill ${statusClass(item.status)}">${item.status}</span></td>
-        <td>${formatDate(item.registered)}</td>
-      </tr>
-    `;
+// Initial Data Fetch
+async function loadInitialData() {
+  try {
+    const statsRes = await fetch(`${API_BASE}/dashboard/stats`, { signal: AbortSignal.timeout(3000) });
+    if (statsRes.ok) {
+      updateBackendStatus(true);
+      const [uRes, dRes, cRes, compRes, stRes] = await Promise.all([
+        fetch(`${API_BASE}/users`),
+        fetch(`${API_BASE}/departments`),
+        fetch(`${API_BASE}/categories`),
+        fetch(`${API_BASE}/complaints`),
+        fetch(`${API_BASE}/staff`)
+      ]);
+      users = await uRes.json();
+      departments = await dRes.json();
+      categories = await cRes.json();
+      complaints = await compRes.json();
+      staffList = await stRes.json();
+      await loadStaffPerformance();
+    } else {
+      throw new Error("Backend not OK");
+    }
+  } catch (err) {
+    console.warn("Spring Boot backend not reachable, using embedded data:", err);
+    updateBackendStatus(false);
+    users = fallbackUsers;
+    departments = fallbackDepartments;
+    categories = fallbackCategories;
+    complaints = [];
   }
 
-  return `
-    <tr>
-      <td>#${item.id}</td>
-      <td>${item.userName}</td>
-      <td>${item.categoryName}</td>
-      <td>${item.departmentName}</td>
-      <td><span class="pill ${priorityClass(item.priority)}">${item.priority}</span></td>
-      <td><span class="pill ${statusClass(item.status)}">${item.status}</span></td>
-      <td>${formatDate(item.registered)}</td>
-      <td><button class="ghost-action" data-detail="${item.id}">Open</button></td>
-    </tr>
-  `;
+  // Restore session from localStorage if saved
+  const savedUser = localStorage.getItem("hostel_cms_user");
+  if (savedUser) {
+    try { currentUser = JSON.parse(savedUser); } catch(e){}
+  }
+
+  updateUserUI();
+  populateDropdowns();
+  renderAll();
 }
 
-function renderTables() {
-  const rows = filteredComplaints();
-  document.querySelector("#recent-rows").innerHTML = complaints.map(complaintViewModel).sort((a, b) => new Date(b.registered) - new Date(a.registered)).slice(0, 6).map((item) => rowTemplate(item, true)).join("");
-  document.querySelector("#complaint-rows").innerHTML = rows.map((item) => rowTemplate(item)).join("");
-  document.querySelector("#complaint-count").textContent = `${rows.length} of ${complaints.length} shown`;
+async function loadStaffPerformance() {
+  if (!isBackendLive) return;
+  try {
+    const res = await fetch(`${API_BASE}/staff/performance`);
+    if (res.ok) {
+      staffPerformance = await res.json();
+    }
+  } catch (e) {
+    console.warn("Could not load staff performance", e);
+  }
 }
 
-function renderDepartments() {
-  const departmentStats = departments.map((department) => {
-    const records = complaints.filter((item) => item.departmentId === department.id);
-    const resolved = records.filter((item) => item.status === "Resolved").length;
-    const open = records.length - resolved;
-    const rate = records.length ? Math.round((resolved / records.length) * 100) : 0;
-    return { ...department, total: records.length, resolved, open, rate };
-  }).sort((a, b) => b.total - a.total);
+function updateUserUI() {
+  if (!currentUserName || !currentUserRole) return;
+  currentUserName.textContent = currentUser.name;
+  userAvatar.textContent = (currentUser.name || "U").charAt(0).toUpperCase();
+  currentUserRole.textContent = currentUser.role;
 
-  document.querySelector("#department-list").innerHTML = departmentStats.map((item) => `
-    <div class="department-row">
-      <div>
-        <strong>${item.name}</strong>
-        <small>${item.total} total complaints</small>
-      </div>
-      <div class="bar-track"><div class="bar-fill resolved" style="width:${item.rate}%"></div></div>
-      <span>${item.resolved} resolved</span>
-      <span>${item.open} open</span>
-    </div>
-  `).join("");
+  if (currentUser.role === "STUDENT") {
+    currentUserRole.className = "pill status-resolved";
+    currentUserExtra.textContent = `(${currentUser.roomNumber || 'Hostel'})`;
+    if (staffNavTab) staffNavTab.style.display = "none";
+  } else if (currentUser.role === "WARDEN") {
+    currentUserRole.className = "pill priority-high";
+    currentUserExtra.textContent = "(Warden Admin)";
+    if (staffNavTab) staffNavTab.style.display = "block";
+  } else {
+    currentUserRole.className = "pill status-in-progress";
+    currentUserExtra.textContent = `(${currentUser.departmentName || 'Staff'})`;
+    if (staffNavTab) staffNavTab.style.display = "none";
+  }
+
+  // Pre-select current user in complaint form if student
+  if (userField && currentUser.role === "STUDENT") {
+    userField.value = currentUser.userId;
+  }
 }
 
-function populateSelects() {
-  const departmentOptions = departments.map((department) => `<option>${department.name}</option>`).join("");
-  document.querySelector("#department-filter").insertAdjacentHTML("beforeend", departmentOptions);
-  document.querySelector("#department-field").innerHTML = departments.map((department) => `<option value="${department.id}">${department.name}</option>`).join("");
-  document.querySelector("#category-field").innerHTML = categories.map((category) => `<option value="${category.id}">${category.name}</option>`).join("");
-  document.querySelector("#user-field").innerHTML = users.map((user) => `<option value="${user.id}">${user.name}</option>`).join("");
-}
+function populateDropdowns() {
+  departmentFilter.innerHTML = '<option value="All">All</option>' +
+    departments.map(d => `<option value="${d.departmentId}">${d.departmentName}</option>`).join("");
 
-function switchView(view) {
-  state.view = view;
-  document.querySelectorAll(".view").forEach((section) => section.classList.toggle("active", section.id === `${view}-view`));
-  document.querySelectorAll(".nav-tab").forEach((button) => button.classList.toggle("active", button.dataset.view === view));
-  const titles = { dashboard: "Dashboard", complaints: "Complaints", departments: "Departments", new: "Register Complaint" };
-  document.querySelector("#page-title").textContent = titles[view];
-}
+  userField.innerHTML = users.map(u => 
+    `<option value="${u.userId}" ${u.userId === currentUser.userId ? 'selected' : ''}>${u.name} (${u.roomNumber ? u.roomNumber : 'Hostel'})</option>`
+  ).join("");
 
-function openDetail(id) {
-  const item = complaintViewModel(complaints.find((complaint) => complaint.id === id));
-  document.querySelector("#detail-title").textContent = `Complaint #${item.id}`;
-  document.querySelector("#detail-body").innerHTML = `
-    <p>${item.description}</p>
-    <div class="detail-grid">
-      <div class="detail-item"><span>Complainant</span><strong>${item.userName}</strong><br>${item.userEmail}</div>
-      <div class="detail-item"><span>Department</span><strong>${item.departmentName}</strong></div>
-      <div class="detail-item"><span>Category</span><strong>${item.categoryName}</strong></div>
-      <div class="detail-item"><span>Assigned staff</span><strong>${item.staffName}</strong></div>
-      <div class="detail-item"><span>Priority</span><strong>${item.priority}</strong></div>
-      <div class="detail-item"><span>Status</span><strong>${item.status}</strong></div>
-      <div class="detail-item"><span>Registered</span><strong>${formatDate(item.registered)}</strong></div>
-      <div class="detail-item"><span>Resolved</span><strong>${formatDate(item.resolved)}</strong></div>
-    </div>
-  `;
-  document.querySelector("#detail-dialog").showModal();
-}
+  categoryField.innerHTML = categories.map(c => 
+    `<option value="${c.categoryId}">${c.categoryName}</option>`
+  ).join("");
 
-function bindEvents() {
-  document.querySelectorAll("[data-view], [data-view-target]").forEach((button) => {
-    button.addEventListener("click", () => switchView(button.dataset.view || button.dataset.viewTarget));
-  });
+  departmentField.innerHTML = departments.map(d => 
+    `<option value="${d.departmentId}">${d.departmentName}</option>`
+  ).join("");
 
-  document.querySelector("#search-input").addEventListener("input", (event) => {
-    state.search = event.target.value;
-    renderTables();
-  });
-
-  document.querySelector("#status-filter").addEventListener("change", (event) => {
-    state.status = event.target.value;
-    renderTables();
-  });
-
-  document.querySelector("#priority-filter").addEventListener("change", (event) => {
-    state.priority = event.target.value;
-    renderTables();
-  });
-
-  document.querySelector("#department-filter").addEventListener("change", (event) => {
-    state.department = event.target.value;
-    renderTables();
-  });
-
-  document.querySelector("#complaint-rows").addEventListener("click", (event) => {
-    const button = event.target.closest("[data-detail]");
-    if (button) openDetail(Number(button.dataset.detail));
-  });
-
-  document.querySelector("#close-dialog").addEventListener("click", () => {
-    document.querySelector("#detail-dialog").close();
-  });
-
-  document.querySelector("#complaint-form").addEventListener("submit", (event) => {
-    event.preventDefault();
-    const nextId = Math.max(...complaints.map((complaint) => complaint.id)) + 1;
-    complaints = [{
-      id: nextId,
-      userId: Number(document.querySelector("#user-field").value),
-      categoryId: Number(document.querySelector("#category-field").value),
-      departmentId: Number(document.querySelector("#department-field").value),
-      description: document.querySelector("#description-field").value.trim(),
-      status: "Pending",
-      priority: document.querySelector("#priority-field").value,
-      registered: new Date().toISOString().slice(0, 10),
-      resolved: null
-    }, ...complaints];
-    event.target.reset();
-    renderAll();
-    switchView("complaints");
-  });
+  if (newStaffDepartment) {
+    newStaffDepartment.innerHTML = departments.map(d =>
+      `<option value="${d.departmentId}">${d.departmentName}</option>`
+    ).join("");
+  }
 }
 
 function renderAll() {
-  renderMetrics();
-  renderStatusBars();
-  renderPriorityStack();
-  renderTables();
-  renderDepartments();
+  renderDashboard();
+  renderComplaintsTable();
+  renderDepartmentsView();
+  renderStaffView();
 }
 
-populateSelects();
-bindEvents();
-renderAll();
+// Dashboard rendering
+function renderDashboard() {
+  const total = complaints.length;
+  const pending = complaints.filter(c => c.status === "Pending").length;
+  const inProgress = complaints.filter(c => c.status === "In Progress").length;
+  const resolved = complaints.filter(c => c.status === "Resolved").length;
+  const highPriority = complaints.filter(c => c.priority === "High").length;
+  const rate = total > 0 ? Math.round((resolved / total) * 100) : 0;
+
+  document.getElementById("metric-grid").innerHTML = `
+    <article class="metric">
+      <span>Total Complaints</span>
+      <strong>${total}</strong>
+      <span>Logged across wings</span>
+    </article>
+    <article class="metric">
+      <span>Pending Review</span>
+      <strong>${pending}</strong>
+      <span>Awaiting assignment</span>
+    </article>
+    <article class="metric">
+      <span>In Progress</span>
+      <strong>${inProgress}</strong>
+      <span>Assigned to staff</span>
+    </article>
+    <article class="metric">
+      <span>Resolved (Rate)</span>
+      <strong>${rate}%</strong>
+      <span>${resolved} of ${total} closed</span>
+    </article>
+  `;
+
+  document.getElementById("status-total").textContent = `${total} complaints recorded`;
+
+  document.getElementById("status-bars").innerHTML = `
+    <div class="bar-row">
+      <strong>Pending</strong>
+      <div class="bar-track"><div class="bar-fill pending" style="width: ${total ? (pending/total)*100 : 0}%"></div></div>
+      <span>${pending}</span>
+    </div>
+    <div class="bar-row">
+      <strong>In Progress</strong>
+      <div class="bar-track"><div class="bar-fill in-progress" style="width: ${total ? (inProgress/total)*100 : 0}%"></div></div>
+      <span>${inProgress}</span>
+    </div>
+    <div class="bar-row">
+      <strong>Resolved</strong>
+      <div class="bar-track"><div class="bar-fill resolved" style="width: ${total ? (resolved/total)*100 : 0}%"></div></div>
+      <span>${resolved}</span>
+    </div>
+  `;
+
+  const medPriority = complaints.filter(c => c.priority === "Medium").length;
+  const lowPriority = complaints.filter(c => c.priority === "Low").length;
+  document.getElementById("priority-stack").innerHTML = `
+    <div class="priority-segment priority-high" style="flex: ${highPriority || 1}">High (${highPriority})</div>
+    <div class="priority-segment priority-medium" style="flex: ${medPriority || 1}">Med (${medPriority})</div>
+    <div class="priority-segment priority-low" style="flex: ${lowPriority || 1}">Low (${lowPriority})</div>
+  `;
+
+  const recent = complaints.slice(0, 6);
+  document.getElementById("recent-rows").innerHTML = recent.map(c => `
+    <tr>
+      <td>#${c.complaintId}</td>
+      <td><strong>${escapeHtml(c.userName || 'Resident')}</strong><br><small style="color:var(--muted)">${escapeHtml(c.roomNumber || 'Room')} (${escapeHtml(c.hostelBlock || 'Hostel')})</small></td>
+      <td>${escapeHtml(c.departmentName || 'Dept')}</td>
+      <td><span class="pill priority-${c.priority.toLowerCase()}">${c.priority}</span></td>
+      <td><span class="pill status-${c.status.toLowerCase().replace(' ', '-')}">${c.status}</span></td>
+      <td>${formatDate(c.dateRegistered)}</td>
+    </tr>
+  `).join("");
+}
+
+// Complaints Table
+function renderComplaintsTable() {
+  const query = searchInput.value.trim().toLowerCase();
+  const statusVal = statusFilter.value;
+  const priorityVal = priorityFilter.value;
+  const deptVal = departmentFilter.value;
+
+  const filtered = complaints.filter(c => {
+    const matchesSearch = !query ||
+      String(c.complaintId).includes(query) ||
+      (c.userName && c.userName.toLowerCase().includes(query)) ||
+      (c.roomNumber && c.roomNumber.toLowerCase().includes(query)) ||
+      (c.description && c.description.toLowerCase().includes(query)) ||
+      (c.departmentName && c.departmentName.toLowerCase().includes(query));
+
+    const matchesStatus = statusVal === "All" || c.status.toLowerCase() === statusVal.toLowerCase();
+    const matchesPriority = priorityVal === "All" || c.priority.toLowerCase() === priorityVal.toLowerCase();
+    const matchesDept = deptVal === "All" || String(c.departmentId) === String(deptVal);
+
+    return matchesSearch && matchesStatus && matchesPriority && matchesDept;
+  });
+
+  document.getElementById("complaint-count").textContent = `${filtered.length} found`;
+
+  const tbody = document.getElementById("complaint-rows");
+  if (filtered.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:30px; color:var(--muted);">No matching complaints found.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = filtered.map(c => {
+    const isOwner = currentUser.role === "STUDENT" && c.userId === currentUser.userId;
+    const canRate = isOwner && c.status === "Resolved" && !c.feedbackRating;
+
+    return `
+      <tr>
+        <td><strong>#${c.complaintId}</strong></td>
+        <td>
+          <strong>${escapeHtml(c.userName || 'Student')}</strong>
+          ${isOwner ? '<span class="pill status-resolved" style="font-size:9px; padding:0 4px; margin-left:4px;">Mine</span>' : ''}
+          <br><small style="color:var(--muted)">${escapeHtml(c.roomNumber || '')} ${escapeHtml(c.hostelBlock || '')}</small>
+        </td>
+        <td>${escapeHtml(c.categoryName || 'General')}</td>
+        <td>${escapeHtml(c.departmentName || 'Dept')}</td>
+        <td><span class="pill priority-${c.priority.toLowerCase()}">${c.priority}</span></td>
+        <td><span class="pill status-${c.status.toLowerCase().replace(' ', '-')}">${c.status}</span></td>
+        <td>${formatDate(c.dateRegistered)}</td>
+        <td>
+          <div style="display:flex; gap:6px; align-items:center;">
+            <button class="ghost-action" style="padding:4px 8px; font-size:12px; min-height:28px;" onclick="viewDetails(${c.complaintId})">Inspect</button>
+            ${canRate ? `<button class="primary-action" style="padding:4px 8px; font-size:12px; min-height:28px; background:var(--warn);" onclick="openFeedbackModal(${c.complaintId})">Rate</button>` : ''}
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join("");
+}
+
+// Department Performance View
+function renderDepartmentsView() {
+  const list = document.getElementById("department-list");
+  list.innerHTML = departments.map(d => {
+    const deptComplaints = complaints.filter(c => c.departmentId === d.departmentId);
+    const total = deptComplaints.length;
+    const resolved = deptComplaints.filter(c => c.status === "Resolved").length;
+    const pending = deptComplaints.filter(c => c.status === "Pending").length;
+    const rate = total > 0 ? Math.round((resolved / total) * 100) : 100;
+
+    return `
+      <div class="department-row">
+        <div>
+          <strong>${escapeHtml(d.departmentName)}</strong>
+          <small>${total} complaints assigned</small>
+        </div>
+        <div class="bar-track">
+          <div class="bar-fill resolved" style="width:${rate}%"></div>
+        </div>
+        <div>
+          <strong>${rate}%</strong>
+          <small>Resolved</small>
+        </div>
+        <div>
+          <span class="pill status-${pending > 0 ? 'pending' : 'resolved'}">${pending} open</span>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+// Staff & Technician Roster View (Warden Only)
+function renderStaffView() {
+  if (!staffRows) return;
+
+  const data = staffPerformance.length > 0 ? staffPerformance : staffList.map(s => {
+    const assigned = complaints.filter(c => c.assignedStaffId === s.staffId);
+    const resolved = assigned.filter(c => c.status === "Resolved");
+    const pending = assigned.filter(c => c.status !== "Resolved");
+    const rated = assigned.filter(c => c.feedbackRating);
+    const avg = rated.length > 0 ? rated.reduce((acc, x) => acc + x.feedbackRating, 0) / rated.length : 0;
+    return {
+      staffId: s.staffId,
+      name: s.name,
+      departmentName: s.departmentName,
+      phone: s.phone,
+      totalAssigned: assigned.length,
+      resolvedCount: resolved.length,
+      pendingCount: pending.length,
+      avgRating: Math.round(avg * 10) / 10
+    };
+  });
+
+  if (data.length === 0) {
+    staffRows.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:30px; color:var(--muted);">No staff members found.</td></tr>`;
+    return;
+  }
+
+  staffRows.innerHTML = data.map(s => `
+    <tr>
+      <td>#${s.staffId}</td>
+      <td><strong>${escapeHtml(s.name)}</strong></td>
+      <td>${escapeHtml(s.departmentName || 'Maintenance')}</td>
+      <td><code>${escapeHtml(s.phone || '9876543210')}</code></td>
+      <td><strong>${s.totalAssigned}</strong> tasks</td>
+      <td><span class="pill status-resolved" style="min-height:22px; font-size:11px;">${s.resolvedCount} closed</span></td>
+      <td><span class="pill ${s.pendingCount > 0 ? 'status-pending' : 'status-resolved'}" style="min-height:22px; font-size:11px;">${s.pendingCount} active</span></td>
+      <td>
+        ${s.avgRating > 0 ? `<strong style="color:#b45309;">⭐ ${s.avgRating}</strong> / 5.0` : '<span style="color:var(--muted);">No ratings</span>'}
+      </td>
+    </tr>
+  `).join("");
+}
+
+// View Details Modal with Role-Specific Controls
+window.viewDetails = async function(id) {
+  const complaint = complaints.find(c => c.complaintId === id);
+  if (!complaint) return;
+
+  let historyHtml = '<p style="color:var(--muted)">Loading history...</p>';
+  detailDialog.showModal();
+
+  renderModalContent(complaint, historyHtml);
+
+  if (isBackendLive) {
+    try {
+      const res = await fetch(`${API_BASE}/complaints/${id}/history`);
+      if (res.ok) {
+        const history = await res.json();
+        historyHtml = history.map(h => `
+          <div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid var(--line); font-size:13px;">
+            <span><strong class="pill status-${h.status.toLowerCase().replace(' ', '-')}">${h.status}</strong></span>
+            <span style="color:var(--muted)">${formatDate(h.updatedOn)}</span>
+          </div>
+        `).join("");
+        renderModalContent(complaint, historyHtml);
+      }
+    } catch (e) {
+      console.warn("Could not load history", e);
+    }
+  } else {
+    historyHtml = `
+      <div style="font-size:13px; color:var(--muted)">
+        <div>Status: <strong>${complaint.status}</strong></div>
+        <div>Logged: ${formatDate(complaint.dateRegistered)}</div>
+      </div>
+    `;
+    renderModalContent(complaint, historyHtml);
+  }
+};
+
+function renderModalContent(complaint, historyHtml) {
+  document.getElementById("detail-title").textContent = `Complaint #${complaint.complaintId} — Details`;
+
+  // Filter staff by department
+  const eligibleStaff = staffList.filter(s => s.departmentId === complaint.departmentId);
+  const staffOptions = eligibleStaff.map(s => 
+    `<option value="${s.staffId}" ${complaint.assignedStaffId === s.staffId ? 'selected' : ''}>${s.name} (${s.phone})</option>`
+  ).join("");
+
+  const isOwner = currentUser.role === "STUDENT" && complaint.userId === currentUser.userId;
+  const isWarden = currentUser.role === "WARDEN";
+  const isStaff = currentUser.role === "STAFF";
+  const canAssign = isWarden || isStaff;
+
+  detailBody.innerHTML = `
+    <div class="detail-grid">
+      <div class="detail-item">
+        <span>Resident Details</span>
+        <strong>${escapeHtml(complaint.userName || 'Student')}</strong>
+        <div>${escapeHtml(complaint.userEmail || '')}</div>
+        <small style="color:var(--muted)">Room: ${escapeHtml(complaint.roomNumber || '')} | ${escapeHtml(complaint.hostelBlock || '')}</small>
+      </div>
+      <div class="detail-item">
+        <span>Department & Category</span>
+        <strong>${escapeHtml(complaint.departmentName || '')}</strong>
+        <div>${escapeHtml(complaint.categoryName || '')}</div>
+        <small style="color:var(--muted)">Priority: <span class="pill priority-${complaint.priority.toLowerCase()}">${complaint.priority}</span></small>
+      </div>
+      <div class="detail-item">
+        <span>Current Status</span>
+        <span class="pill status-${complaint.status.toLowerCase().replace(' ', '-')}">${complaint.status}</span>
+        <div style="margin-top:6px; font-size:12px; color:var(--muted)">Registered: ${formatDate(complaint.dateRegistered)}</div>
+        ${complaint.dateResolved ? `<div style="font-size:12px; color:var(--ok)">Resolved: ${formatDate(complaint.dateResolved)}</div>` : ''}
+      </div>
+      <div class="detail-item">
+        <span>Assigned Technician</span>
+        <strong>${complaint.assignedStaffName ? escapeHtml(complaint.assignedStaffName) : '<em style="color:var(--muted)">Unassigned</em>'}</strong>
+        ${complaint.feedbackRating ? `<div style="margin-top:4px;">Rating: <strong>${'⭐'.repeat(complaint.feedbackRating)}</strong> (${complaint.feedbackRating}/5)<br><small style="color:var(--muted)">"${escapeHtml(complaint.feedbackComments || '')}"</small></div>` : ''}
+      </div>
+    </div>
+
+    <div class="panel" style="background:#f8fafc; border:1px solid var(--line); padding:12px; border-radius:8px;">
+      <span style="font-size:12px; text-transform:uppercase; color:var(--muted); font-weight:800; display:block; margin-bottom:6px;">Issue Description</span>
+      <p style="margin:0; font-size:14px; line-height:1.5;">${escapeHtml(complaint.description)}</p>
+    </div>
+
+    <div class="panel" style="padding:12px; border:1px solid var(--line); border-radius:8px;">
+      <span style="font-size:12px; text-transform:uppercase; color:var(--muted); font-weight:800; display:block; margin-bottom:8px;">Lifecycle & Audit Trail</span>
+      ${historyHtml}
+    </div>
+
+    <div class="action-bar">
+      <strong>Actions (${currentUser.role}):</strong>
+
+      ${canAssign ? `
+        <select id="assign-staff-select" style="min-height:34px; padding:4px 8px; font-size:13px; width:auto;">
+          <option value="">-- Assign Technician --</option>
+          ${staffOptions}
+        </select>
+        <button class="primary-action" style="min-height:34px; padding:0 12px; font-size:13px;" onclick="doAssignStaff(${complaint.complaintId})">Assign</button>
+        <button class="ghost-action" style="min-height:34px; padding:0 12px; font-size:13px;" onclick="doUpdateStatus(${complaint.complaintId}, 'In Progress')">Mark In Progress</button>
+        <button class="primary-action" style="min-height:34px; padding:0 12px; font-size:13px; background:var(--ok);" onclick="doUpdateStatus(${complaint.complaintId}, 'Resolved')">Resolve</button>
+      ` : ''}
+
+      ${isOwner && complaint.status === 'Resolved' && !complaint.feedbackRating ? `
+        <button class="primary-action" style="min-height:34px; padding:0 14px; font-size:13px; background:var(--warn);" onclick="openFeedbackModal(${complaint.complaintId})">⭐ Rate Resolution</button>
+      ` : ''}
+
+      ${isOwner && complaint.status !== 'Resolved' ? `
+        <span style="font-size:12px; color:var(--muted);">Your ticket is being handled by hostel maintenance.</span>
+      ` : ''}
+    </div>
+  `;
+}
+
+// Live Assign Action (Both Warden and Staff can assign)
+window.doAssignStaff = async function(complaintId) {
+  const select = document.getElementById("assign-staff-select");
+  const staffId = select ? select.value : null;
+  if (!staffId) {
+    alert("Please select a technician to assign.");
+    return;
+  }
+
+  if (isBackendLive) {
+    try {
+      const res = await fetch(`${API_BASE}/complaints/${complaintId}/assign`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ staffId: parseInt(staffId) })
+      });
+      if (res.ok) {
+        await refreshData();
+        await loadStaffPerformance();
+        renderStaffView();
+        viewDetails(complaintId);
+        alert("Staff successfully assigned via JDBC transaction!");
+      }
+    } catch (e) {
+      alert("Error assigning staff: " + e.message);
+    }
+  } else {
+    const c = complaints.find(x => x.complaintId === complaintId);
+    if (c) {
+      c.assignedStaffId = parseInt(staffId);
+      const s = staffList.find(x => x.staffId === parseInt(staffId));
+      if (s) c.assignedStaffName = s.name;
+      c.status = "In Progress";
+      renderAll();
+      viewDetails(complaintId);
+    }
+  }
+};
+
+// Live Status Update Action
+window.doUpdateStatus = async function(complaintId, newStatus) {
+  if (isBackendLive) {
+    try {
+      const res = await fetch(`${API_BASE}/complaints/${complaintId}/status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus })
+      });
+      if (res.ok) {
+        await refreshData();
+        await loadStaffPerformance();
+        renderStaffView();
+        viewDetails(complaintId);
+      }
+    } catch (e) {
+      alert("Error updating status: " + e.message);
+    }
+  } else {
+    const c = complaints.find(x => x.complaintId === complaintId);
+    if (c) {
+      c.status = newStatus;
+      renderAll();
+      viewDetails(complaintId);
+    }
+  }
+};
+
+// Open Feedback Dialog
+window.openFeedbackModal = function(complaintId) {
+  feedbackComplaintId.value = complaintId;
+  feedbackForm.reset();
+  feedbackDialog.showModal();
+};
+
+feedbackForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const complaintId = parseInt(feedbackComplaintId.value);
+  const rating = parseInt(feedbackRatingSelect.value);
+  const comments = feedbackCommentsText.value.trim();
+
+  if (isBackendLive) {
+    try {
+      const res = await fetch(`${API_BASE}/complaints/${complaintId}/feedback`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ rating, comments })
+      });
+      if (res.ok) {
+        feedbackDialog.close();
+        alert("Thank you! Resident feedback recorded in database.");
+        await refreshData();
+        await loadStaffPerformance();
+        renderStaffView();
+        viewDetails(complaintId);
+      } else {
+        const err = await res.json();
+        alert("Error: " + (err.error || "Failed to submit feedback."));
+      }
+    } catch (err) {
+      alert("Submission error: " + err.message);
+    }
+  } else {
+    const c = complaints.find(x => x.complaintId === complaintId);
+    if (c) {
+      c.feedbackRating = rating;
+      c.feedbackComments = comments;
+      feedbackDialog.close();
+      renderAll();
+      viewDetails(complaintId);
+    }
+  }
+});
+
+// Add Staff Form Submission (Warden Only)
+if (openAddStaffBtn) {
+  openAddStaffBtn.addEventListener("click", () => {
+    if (addStaffDialog) {
+      addStaffForm.reset();
+      addStaffDialog.showModal();
+    }
+  });
+}
+
+if (closeAddStaffDialog) {
+  closeAddStaffDialog.addEventListener("click", () => addStaffDialog.close());
+}
+
+if (addStaffForm) {
+  addStaffForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const name = newStaffName.value.trim();
+    const departmentId = parseInt(newStaffDepartment.value);
+    const phone = newStaffPhone.value.trim();
+
+    if (!name || !departmentId) return;
+
+    if (isBackendLive) {
+      try {
+        const res = await fetch(`${API_BASE}/staff`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, departmentId, phone })
+        });
+        if (res.ok) {
+          const created = await res.json();
+          addStaffDialog.close();
+          alert(`Staff member ${created.name} successfully added to database!`);
+          const stRes = await fetch(`${API_BASE}/staff`);
+          staffList = await stRes.json();
+          await loadStaffPerformance();
+          renderStaffView();
+          populateDropdowns();
+        } else {
+          const err = await res.json();
+          alert("Failed to add staff: " + (err.error || "Error"));
+        }
+      } catch (err) {
+        alert("Error: " + err.message);
+      }
+    } else {
+      const newStaff = {
+        staffId: (staffList[staffList.length - 1]?.staffId || 30) + 1,
+        name,
+        departmentId,
+        departmentName: departments.find(d => d.departmentId === departmentId)?.departmentName || "Maintenance",
+        phone
+      };
+      staffList.push(newStaff);
+      addStaffDialog.close();
+      renderStaffView();
+      populateDropdowns();
+      alert(`Staff member ${name} added locally.`);
+    }
+  });
+}
+
+// Role Switcher / Login Logic
+window.loginAsRole = function(roleType) {
+  if (roleType === "student") {
+    currentUser = {
+      userId: 1,
+      name: "Aarav Sharma",
+      email: "aarav.sharma@example.com",
+      roomNumber: "A-101",
+      hostelBlock: "Block A",
+      role: "STUDENT"
+    };
+  } else if (roleType === "warden") {
+    currentUser = {
+      userId: 16,
+      name: "Hostel Warden (Admin)",
+      email: "warden@hostel.edu",
+      roomNumber: "Admin-01",
+      hostelBlock: "Admin Block",
+      role: "WARDEN"
+    };
+  } else if (roleType === "staff") {
+    currentUser = {
+      userId: 1003,
+      staffId: 3,
+      name: "Kunal Bedi",
+      email: "kunal.bedi@staff.hostel.edu",
+      departmentName: "IT & Wi-Fi",
+      role: "STAFF"
+    };
+  }
+  localStorage.setItem("hostel_cms_user", JSON.stringify(currentUser));
+  updateUserUI();
+  populateDropdowns();
+  renderAll();
+  loginDialog.close();
+  alert(`Switched active actor to: ${currentUser.name} (${currentUser.role})`);
+};
+
+window.submitCustomLogin = async function() {
+  const input = document.getElementById("custom-email-input").value.trim();
+  if (!input) return;
+
+  if (isBackendLive) {
+    try {
+      const res = await fetch(`${API_BASE}/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: input })
+      });
+      if (res.ok) {
+        currentUser = await res.json();
+        localStorage.setItem("hostel_cms_user", JSON.stringify(currentUser));
+        updateUserUI();
+        populateDropdowns();
+        renderAll();
+        loginDialog.close();
+        alert(`Welcome, ${currentUser.name} (${currentUser.role})!`);
+        return;
+      }
+    } catch (e) {
+      console.warn("Auth endpoint fallback", e);
+    }
+  }
+
+  const foundUser = users.find(u => u.email.toLowerCase() === input.toLowerCase() || String(u.userId) === input);
+  if (foundUser) {
+    currentUser = { ...foundUser, role: foundUser.role || "STUDENT" };
+    localStorage.setItem("hostel_cms_user", JSON.stringify(currentUser));
+    updateUserUI();
+    populateDropdowns();
+    renderAll();
+    loginDialog.close();
+    alert(`Logged in as ${currentUser.name}!`);
+  } else {
+    alert("User email not found. Please try 'aarav.sharma@example.com' or 'warden@hostel.edu'.");
+  }
+};
+
+switchUserBtn.addEventListener("click", () => loginDialog.showModal());
+closeLoginDialog.addEventListener("click", () => loginDialog.close());
+closeFeedbackDialog.addEventListener("click", () => feedbackDialog.close());
+
+// Refresh data from API
+async function refreshData() {
+  if (!isBackendLive) return;
+  const [compRes, statsRes] = await Promise.all([
+    fetch(`${API_BASE}/complaints`),
+    fetch(`${API_BASE}/dashboard/stats`)
+  ]);
+  complaints = await compRes.json();
+  renderAll();
+}
+
+// Form Submission (Create Complaint)
+complaintForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const userId = parseInt(userField.value);
+  const categoryId = parseInt(categoryField.value);
+  const departmentId = parseInt(departmentField.value);
+  const priority = document.getElementById("priority-field").value;
+  const description = document.getElementById("description-field").value.trim();
+
+  if (!description) return;
+
+  const payload = { userId, categoryId, departmentId, priority, description };
+
+  if (isBackendLive) {
+    try {
+      const res = await fetch(`${API_BASE}/complaints`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) {
+        const created = await res.json();
+        alert(`Complaint #${created.complaintId} successfully registered in database!`);
+        complaintForm.reset();
+        await refreshData();
+        await loadStaffPerformance();
+        renderStaffView();
+        switchView("complaints");
+      } else {
+        const err = await res.json();
+        alert("Submission failed: " + (err.error || "Unknown error"));
+      }
+    } catch (err) {
+      alert("Connection error: " + err.message);
+    }
+  } else {
+    const newId = (complaints[0]?.complaintId || 100) + 1;
+    const u = users.find(x => x.userId === userId) || {};
+    const d = departments.find(x => x.departmentId === departmentId) || {};
+    const cat = categories.find(x => x.categoryId === categoryId) || {};
+
+    const newComp = {
+      complaintId: newId,
+      userId,
+      userName: u.name,
+      roomNumber: u.roomNumber,
+      hostelBlock: u.hostelBlock,
+      categoryId,
+      categoryName: cat.categoryName,
+      departmentId,
+      departmentName: d.departmentName,
+      priority,
+      description,
+      status: "Pending",
+      dateRegistered: new Date().toISOString()
+    };
+    complaints.unshift(newComp);
+    complaintForm.reset();
+    renderAll();
+    switchView("complaints");
+    alert(`Complaint #${newId} recorded locally (offline mode).`);
+  }
+});
+
+// Navigation tab switching
+document.querySelectorAll(".nav-tab").forEach(tab => {
+  tab.addEventListener("click", () => switchView(tab.dataset.view));
+});
+
+document.querySelectorAll("[data-view-target]").forEach(btn => {
+  btn.addEventListener("click", () => switchView(btn.dataset.viewTarget));
+});
+
+function switchView(viewName) {
+  Object.keys(views).forEach(key => {
+    if (views[key]) views[key].classList.remove("active");
+  });
+  document.querySelectorAll(".nav-tab").forEach(tab => {
+    tab.classList.toggle("active", tab.dataset.view === viewName);
+  });
+  if (views[viewName]) {
+    views[viewName].classList.add("active");
+  }
+  const titles = {
+    dashboard: "Hostel Maintenance Dashboard",
+    complaints: "Hostel Complaints Directory",
+    departments: "Maintenance Wings & Performance",
+    staff: "Staff & Technician Management (Warden)",
+    new: "Lodge New Complaint"
+  };
+  pageTitle.textContent = titles[viewName] || "Dashboard";
+}
+
+// Search and Filter Listeners
+searchInput.addEventListener("input", renderComplaintsTable);
+statusFilter.addEventListener("change", renderComplaintsTable);
+priorityFilter.addEventListener("change", renderComplaintsTable);
+departmentFilter.addEventListener("change", renderComplaintsTable);
+
+closeDialog.addEventListener("click", () => detailDialog.close());
+detailDialog.addEventListener("click", (e) => {
+  if (e.target === detailDialog) detailDialog.close();
+});
+
+// Helpers
+function formatDate(dateStr) {
+  if (!dateStr) return "-";
+  try {
+    const d = new Date(dateStr);
+    return isNaN(d) ? String(dateStr) : d.toLocaleDateString("en-IN", { month: "short", day: "numeric", year: "numeric" });
+  } catch (e) {
+    return String(dateStr);
+  }
+}
+
+function escapeHtml(str) {
+  if (!str) return "";
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+// Start
+loadInitialData();

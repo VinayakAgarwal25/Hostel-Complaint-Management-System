@@ -1,6 +1,42 @@
-# Complaint Management System
+# Hostel Complaint & Maintenance Management System
 
-**UCS310 - Database Management System | Thapar Institute of Engineering and Technology | 2025-2026**
+**Java Project & Database Management System | Thapar Institute of Engineering and Technology**
+
+---
+
+## 🚀 Quick Start: Running the Java Spring Boot Project
+
+The Java project is located in [`backend/`](backend) and comes pre-configured with a 3-tier MVC + DAO architecture, REST APIs, and an interactive web dashboard.
+
+### 1. Launch in 1 Step (Zero-Setup Embedded Mode)
+```bash
+cd backend
+./mvnw spring-boot:run
+```
+*(Or `mvn spring-boot:run` if Maven is installed, or open `backend/` in IntelliJ IDEA / Eclipse and click **Run** on `HostelCmsApplication.java`).*
+
+### 2. Open the Dashboard in Browser
+Visit: **`http://localhost:8080`**  
+The dashboard will display **"● Spring Boot + DB Connected"** and give you real-time access to lodge complaints, assign technicians, inspect tickets, and track maintenance metrics.
+
+### 3. Running with Local MySQL
+1. Load the database script:
+   ```bash
+   mysql -u root -p < database/mysql_schema_and_data.sql
+   ```
+2. Start Spring Boot using the MySQL profile:
+   ```bash
+   ./mvnw spring-boot:run -Dspring-boot.run.profiles=mysql
+   ```
+
+---
+
+## 📚 Evaluation & Documentation Links
+- **Full Project Report & Viva Prep (15 Marks):** [docs/PROJECT_REPORT_AND_EVALUATION_GUIDE.md](docs/PROJECT_REPORT_AND_EVALUATION_GUIDE.md)
+- **Architecture & Roadmap:** [docs/JAVA_PROJECT_ROADMAP.md](docs/JAVA_PROJECT_ROADMAP.md)
+- **MySQL Script:** [database/mysql_schema_and_data.sql](database/mysql_schema_and_data.sql)
+
+---
 
 ## Project Team
 

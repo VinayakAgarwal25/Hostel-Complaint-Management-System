@@ -1,1 +1,68 @@
+# ====================================================================
+# Git Ignore Configuration for Hostel Complaint Management System
+# ====================================================================
+
+# Compiled Java & Maven build artifacts
+target/
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+*.zip
+*.tar.gz
+*.rar
+
+# Maven Release & Helper files
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+
+# Crash Logs
+hs_err_pid*
+replay_pid*
+
+# Application logs & temporary files
+*.log
+*.tmp
+*.bak
+*.swp
+*~
+
+# Operating System Files
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE & Editor Configuration
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+.vscode/
+*.code-workspace
+.settings/
+.project
+.classpath
+bin/
+.nb-gradle/
+.nb-gradle-build/
+
+# Local properties / secrets fallback (if any created in future)
+application-local.properties
+application-local.yml
+
+# PDF Reports / Large binary document exports
+*.pdf
+docs/*.pdf
