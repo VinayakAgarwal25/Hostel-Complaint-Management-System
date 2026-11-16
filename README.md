@@ -44,7 +44,7 @@ The dashboard will display **"● Spring Boot + DB Connected"** and give you rea
 |---|---:|
 | Vinayak Agarwal | 1024030915 |
 | Shubhr Gupta | 1024030919 |
-| Aryan Juneja | 1024030920 |
+| Arpit Goyal |             |
 
 ## 1. Project Overview
 
